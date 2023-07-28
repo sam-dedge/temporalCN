@@ -129,7 +129,8 @@ dmypy.json
 .pyre/
 
 # Data and Trained Model Ignore
-/data/
+/data/*.csv
+/data/spy_eod_2022/
 /trained/
 
 #Including Sample data
