@@ -1,6 +1,7 @@
-# Deep Generative Models
+# Adapted QuantGAN code for MS Project. 
+## See Tab-DDPM repoository and Report for details about the project.
 
-## Implentation of Quant GANs: Deep Generation of Financial Time Series, 2019
+### [Implentation of Quant GANs: Deep Generation of Financial Time Series, 2019](https://github.com/JamesSullivan/temporalCN)
 
 
 [Wiese et al., Quant GANs: Deep Generation of Financial Time Series, 2019](https://arxiv.org/abs/1907.06673)
@@ -11,7 +12,9 @@ This repository includes code from:
 * [TCN](https://github.com/locuslab/TCN)
 * Greg Ver Steeg, 2015
 
-### Data for S&P 500 and the Shanghai SE Composite Index needs to be put in the data folder
+### Data
+* SPY & SPX data needs to be downloaded put in the data folder.
+* Sample Options file is provided. Download according to expiry and strikes and seperate calls and puts. 
 
 ### TCN implementations are provided for both Tensor Flow and Torch
 

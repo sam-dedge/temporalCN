@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Data and Trained Model Ignore
+/data/
+/trained/
+
+#Including Sample data
+!data/sample_options.csv
