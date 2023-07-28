@@ -40,7 +40,6 @@ def acf(x, k, le=False):
     return np.nansum((a * b), axis=1) / np.sqrt(np.nansum(a**2, axis=0) * np.nansum(b**2, axis=1))
 
 def cross_acf(x, y, k, le=False):
-    
     arr = rolling_window(y, k, sparse=False)
     a = (x - x.mean(axis=0))
     

@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.nn.utils import weight_norm
@@ -63,9 +64,9 @@ class Generator(nn.Module):
     """ 
     def __init__(self):
         super(Generator, self).__init__()
-        self.tcn = nn.ModuleList([TemporalBlock(3, 80, kernel_size=1, stride=1, dilation=1, padding=0),
+        self.tcn = nn.ModuleList([TemporalBlock(6, 80, kernel_size=1, stride=1, dilation=1, padding=0),
                                  *[TemporalBlock(80, 80, kernel_size=2, stride=1, dilation=i, padding=i) for i in [1, 2, 4, 8, 16, 32]]])
-        self.last = nn.Conv1d(80, 1, kernel_size=1, stride=1, dilation=1)
+        self.last = nn.Conv1d(80, 6, kernel_size=1, stride=1, dilation=1)
 
     def forward(self, x):
         skip_layers = []
@@ -80,12 +81,12 @@ class Discriminator(nn.Module):
     """Discrimnator: 1 to 1 Causal temporal convolutional network with skip connections.
        This network uses 1D convolutions in order to model multiple timeseries co-dependency.
     """ 
-    def __init__(self, seq_len, conv_dropout=0.05):
+    def __init__(self, batch_size, seq_len, conv_dropout=0.05):
         super(Discriminator, self).__init__()
-        self.tcn = nn.ModuleList([TemporalBlock(1, 80, kernel_size=1, stride=1, dilation=1, padding=0),
+        self.tcn = nn.ModuleList([TemporalBlock(6, 80, kernel_size=1, stride=1, dilation=1, padding=0),
                                  *[TemporalBlock(80, 80, kernel_size=2, stride=1, dilation=i, padding=i) for i in [1, 2, 4, 8, 16, 32]]])
-        self.last = nn.Conv1d(80, 1, kernel_size=1, dilation=1)
-        self.to_prob = nn.Sequential(nn.Linear(seq_len, 1), nn.Sigmoid())
+        self.last = nn.Conv1d(80, 6, kernel_size=1, dilation=1)
+        self.to_prob = nn.Sequential(nn.Linear(batch_size, 6), nn.Sigmoid())
 
     def forward(self, x):
         skip_layers = []
@@ -93,4 +94,18 @@ class Discriminator(nn.Module):
             skip, x = layer(x)
             skip_layers.append(skip)
         x = self.last(x + sum(skip_layers))
-        return self.to_prob(x).squeeze()
+        #print("Here", x.shape)
+        #print(self.to_prob(x.T).shape)
+        #print(self.to_prob(x.T).squeeze().shape)
+
+        if x.shape[0] < 64:
+            x = torch.Tensor.cpu(x)
+            #print('Yolo', type(x), type(x.detach().numpy()), x.shape)
+            x = np.pad(x.detach().numpy(), (0, 64-x.shape[0]), 'mean')
+            #print(x.shape)
+            x = x[:,:6,:1]
+            #print(x.shape)
+
+            x = torch.Tensor(x).to(torch.device("cuda:0"))
+
+        return self.to_prob(x.T).squeeze()
